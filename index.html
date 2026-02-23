@@ -1,0 +1,520 @@
+<!doctype html>
+<!-- Hack the OpenClaw — Full-screen HTML ad
+     - Copy this into a file named hack-the-openclaw-ad.html
+     - Open in a modern browser (Chrome, Edge, Safari, Firefox)
+     - UK spelling used in copy
+-->
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hack the OpenClaw — YSWS</title>
+  <meta name="description" content="Hack the OpenClaw — reveal secrets, score points, win AI credits. RSVP now." />
+
+  <!-- Optional: change to your preferred font or remove the link for offline use -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-1: #0f1724;
+      --bg-2: #071029;
+      --accent: #6ee7b7;
+      --accent-2: #7c5cff;
+      --muted: rgba(255,255,255,0.08);
+      --glass: rgba(255,255,255,0.06);
+      --radius: 14px;
+      --ease: cubic-bezier(.16,.84,.24,1);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg-1),var(--bg-2));
+      color: #e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow:hidden;
+    }
+
+    /* Fullscreen container */
+    .stage{
+      position:relative;
+      width:100vw;
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:48px;
+      gap:36px;
+    }
+
+    /* Particle canvas */
+    canvas.bg-canvas{
+      position:absolute;
+      inset:0;
+      z-index:0;
+      display:block;
+      width:100%;
+      height:100%;
+      filter:blur(10px) saturate(120%);
+      opacity:0.85;
+      pointer-events:none;
+    }
+
+    /* Content card */
+    .card{
+      position:relative;
+      z-index:5;
+      width:min(1200px, 96vw);
+      max-height:86vh;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:28px;
+      align-items:stretch;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius: var(--radius);
+      padding:28px;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.5), inset 0 1px 0 rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px) saturate(120%);
+      overflow: hidden;
+    }
+
+    /* Left (hero) */
+    .hero{
+      padding:12px 8px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      justify-content:center;
+    }
+
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:800;
+      letter-spacing:0.2px;
+      font-size:18px;
+    }
+    .logo-mark{
+      width:48px;
+      height:48px;
+      display:grid;
+      place-items:center;
+      border-radius:10px;
+      background: linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:#062024;
+      font-weight:800;
+      box-shadow: 0 8px 22px rgba(124,92,255,0.18);
+    }
+
+    h1{
+      margin:0;
+      font-size:44px;
+      line-height:1.02;
+      letter-spacing:-1px;
+      background: linear-gradient(90deg,#fff, #aef7d4 60%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color:transparent;
+      filter: drop-shadow(0 6px 18px rgba(12,18,32,0.6));
+      transform-origin:left center;
+      animation: riseIn 700ms var(--ease) 200ms both;
+    }
+
+    @keyframes riseIn{
+      from{transform: translateY(14px) scale(.995); opacity:0}
+      to{transform: translateY(0) scale(1); opacity:1}
+    }
+
+    p.lead{
+      margin:0;
+      color: rgba(230,238,248,0.9);
+      font-size:16px;
+      line-height:1.5;
+      max-width:54ch;
+      animation: fadeIn 900ms var(--ease) 320ms both;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0; transform: translateY(8px)}
+      to{opacity:1; transform: translateY(0)}
+    }
+
+    /* CTA area */
+    .cta{
+      display:flex;
+      gap:12px;
+      margin-top:6px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      -webkit-tap-highlight-color: transparent;
+      border:0;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 16px;
+      font-weight:700;
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      color:#031018;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow: 0 12px 30px rgba(124,92,255,0.12), 0 2px 0 rgba(255,255,255,0.02) inset;
+      transition: transform 180ms var(--ease), box-shadow 180ms var(--ease);
+      text-decoration:none;
+    }
+    .btn:active{transform: translateY(1px)}
+    .btn.secondary{
+      background:transparent;
+      color: #cfe9f5;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: none;
+      padding:10px 14px;
+    }
+
+    /* Right column - scoreboard & secrets */
+    .panel{
+      padding:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.02);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-width:280px;
+      max-height:72vh;
+      overflow:auto;
+    }
+
+    .panel h3{margin:4px 0 0 0; font-size:18px}
+    .score{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:8px;
+      background:linear-gradient(90deg,rgba(255,255,255,0.01),transparent);
+      border-radius:10px;
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+    .score .num{
+      font-weight:800;
+      font-size:20px;
+      color:var(--accent);
+    }
+
+    .secrets{
+      display:grid;
+      gap:10px;
+      margin-top:6px;
+    }
+
+    .secret{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:10px;
+      border-radius:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.02));
+      border: 1px solid rgba(255,255,255,0.02);
+      transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
+      cursor:pointer;
+    }
+    .secret:hover{transform: translateY(-6px); box-shadow: 0 12px 30px rgba(5,8,18,0.55)}
+    .secret .meta{display:flex; flex-direction:column}
+    .secret .meta .title{font-weight:700}
+    .secret .points{
+      font-weight:800;
+      color:var(--accent-2);
+      background: rgba(255,255,255,0.03);
+      padding:6px 8px;
+      border-radius:8px;
+      min-width:58px;
+      text-align:center;
+    }
+
+    /* footer / status */
+    .status{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-size:13px;
+      color:rgba(230,238,248,0.75);
+      margin-top:8px;
+    }
+    .pulse{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--accent);
+      box-shadow: 0 0 0 rgba(110,231,183,0.5);
+      animation: ping 1600ms infinite;
+      flex: 0 0 auto;
+    }
+    @keyframes ping{
+      0%{box-shadow:0 0 0 0 rgba(110,231,183,0.5)}
+      70%{box-shadow:0 0 0 12px rgba(110,231,183,0)}
+      100%{box-shadow:0 0 0 0 rgba(110,231,183,0)}
+    }
+
+    /* micro animations & responsiveness */
+    @media (max-width:980px){
+      .card{grid-template-columns: 1fr; padding:18px; gap:18px}
+      .panel{order:2}
+    }
+    @media (max-width:560px){
+      h1{font-size:32px}
+      .logo{font-size:16px}
+      .cta{flex-direction:column; align-items:stretch}
+      .btn{justify-content:center}
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" role="region" aria-label="Hack the OpenClaw full screen ad">
+    <canvas class="bg-canvas" aria-hidden="true"></canvas>
+
+    <main class="card" role="main">
+      <section class="hero" aria-labelledby="hero-heading">
+        <div class="logo" aria-hidden="true">
+          <div class="logo-mark">Y</div>
+          <div>
+            <div style="font-size:12px; opacity:0.88">YSWS · Vibe-Check</div>
+            <div style="font-size:11px; color:var(--muted)">Reveal. Score. Win.</div>
+          </div>
+        </div>
+
+        <h1 id="hero-heading">Hack the OpenClaw — reveal the secrets</h1>
+
+        <p class="lead">
+          Crack multiple levels of secrets in the OpenClaw / vibe-coded app.
+          Each secret is protected differently — the harder it is, the more points you score.
+          Compete, climb the leaderboard and win AI credits plus extra prizes.
+        </p>
+
+        <div class="cta" role="group" aria-label="Call to action">
+          <a class="btn" href="https://forms.fillout.com/t/3xSkqKtj8wus" id="rsvp" target="_blank" rel="noopener noreferrer">
+            RSVP — Secure your slot
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="#031018" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+
+          <button class="btn secondary" id="join-vibe" aria-controls="vibe-link">
+            View #vibe-check
+          </button>
+        </div>
+
+        <div class="status" aria-hidden="false">
+          <div class="pulse" aria-hidden="true"></div>
+          <div>Live updates & hints in <strong>#vibe-check</strong></div>
+        </div>
+      </section>
+
+      <aside class="panel" aria-labelledby="panel-heading">
+        <h3 id="panel-heading">Leaderboard preview</h3>
+
+        <div class="score" role="status" aria-live="polite">
+          <div>
+            <div style="font-size:12px; color:var(--muted)">Top score</div>
+            <div class="num" aria-atomic="true" id="top-score">1340</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px; color:var(--muted)">Prizes</div>
+            <div style="font-weight:800">AI credits + extras</div>
+          </div>
+        </div>
+
+        <div class="secrets" id="secrets-list" role="list" aria-label="Example secrets and points">
+          <!-- one-time example items (replace or generate dynamically) -->
+          <div class="secret" role="listitem" tabindex="0" aria-label="Secret: Hidden endpoint — 120 points" data-tip="Hidden endpoint" onclick="revealMock(this)">
+            <div class="meta">
+              <div class="title">Hidden endpoint</div>
+              <div style="font-size:12px; color:var(--muted)">Example: discover a private route</div>
+            </div>
+            <div class="points">120</div>
+          </div>
+
+          <div class="secret" role="listitem" tabindex="0" aria-label="Secret: Logic bypass — 260 points" data-tip="Logic bypass" onclick="revealMock(this)">
+            <div class="meta">
+              <div class="title">Logic bypass</div>
+              <div style="font-size:12px; color:var(--muted)">Client vs server validation mismatch</div>
+            </div>
+            <div class="points">260</div>
+          </div>
+
+          <div class="secret" role="listitem" tabindex="0" aria-label="Secret: Obfuscated key — 420 points" data-tip="Obfuscated key" onclick="revealMock(this)">
+            <div class="meta">
+              <div class="title">Obfuscated key</div>
+              <div style="font-size:12px; color:var(--muted)">Find the encoded token</div>
+            </div>
+            <div class="points">420</div>
+          </div>
+
+          <div class="secret" role="listitem" tabindex="0" aria-label="Secret: Bonus puzzle — 540 points" data-tip="Bonus puzzle" onclick="revealMock(this)">
+            <div class="meta">
+              <div class="title">Bonus puzzle</div>
+              <div style="font-size:12px; color:var(--muted)">Careful — rare, high reward</div>
+            </div>
+            <div class="points">540</div>
+          </div>
+        </div>
+
+        <div style="margin-top:8px; font-size:13px; color:var(--muted)">
+          Want a digital version of this ad or a PNG export? Ask and I’ll generate one.
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    /* ---- Background particle field (canvas) ---- */
+    (function(){
+      const canvas = document.querySelector('.bg-canvas');
+      const ctx = canvas.getContext('2d');
+      let w = canvas.width = innerWidth;
+      let h = canvas.height = innerHeight;
+      const particles = [];
+      const opts = {
+        count: Math.round((w*h) / 60000 * 40), // density scaling
+        maxR: 2.6,
+        speed: 0.2,
+        hueBase: 210
+      };
+
+      function rand(min,max){ return Math.random() * (max-min) + min }
+
+      function Particle(){
+        this.x = Math.random()*w;
+        this.y = Math.random()*h;
+        this.vx = (Math.random()-0.5) * opts.speed;
+        this.vy = (Math.random()-0.5) * opts.speed;
+        this.r = rand(0.4, opts.maxR);
+        this.alpha = rand(0.08,0.35);
+        this.h = opts.hueBase + rand(-40,40);
+      }
+
+      Particle.prototype.update = function(){
+        this.x += this.vx;
+        this.y += this.vy;
+        if(this.x < -20) this.x = w + 20;
+        if(this.x > w + 20) this.x = -20;
+        if(this.y < -20) this.y = h + 20;
+        if(this.y > h + 20) this.y = -20;
+      }
+
+      Particle.prototype.draw = function(){
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${this.h},75%,65%,${this.alpha})`;
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      function initParticles(){
+        particles.length = 0;
+        for(let i=0;i<opts.count;i++) particles.push(new Particle());
+      }
+
+      function resize(){
+        w = canvas.width = innerWidth;
+        h = canvas.height = innerHeight;
+        opts.count = Math.round((w*h) / 60000 * 40);
+        initParticles();
+      }
+      addEventListener('resize', resize, {passive:true});
+      resize();
+
+      function tick(){
+        ctx.clearRect(0,0,w,h);
+        // gentle radial gradient overlay
+        let g = ctx.createLinearGradient(0,0,w,h);
+        g.addColorStop(0, 'rgba(12,18,32,0.12)');
+        g.addColorStop(1, 'rgba(3,8,20,0.5)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0,0,w,h);
+
+        for(const p of particles){
+          p.update();
+          p.draw();
+        }
+
+        // animated streak lines (subtle)
+        ctx.beginPath();
+        for(let i=0;i<3;i++){
+          const y = (Math.sin(Date.now()/1500 + i*2) * (h/8)) + (h/2);
+          ctx.moveTo(0,y);
+          ctx.quadraticCurveTo(w*0.5, y + Math.sin(Date.now()/1200 + i)*20, w, y - 40);
+        }
+        ctx.strokeStyle = "rgba(124,92,255,0.03)";
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        requestAnimationFrame(tick);
+      }
+      tick();
+    })();
+
+    /* ---- Simple interactive handlers ---- */
+    (function(){
+      const join = document.getElementById('join-vibe');
+      join.addEventListener('click', function(){
+        // Try to open Slack link in a new tab - replace with real link if you have one
+        const slackUrl = 'https://hackclub.slack.com/archives/CV8F3F1R3'; // placeholder, replace if needed
+        const confirmed = confirm('Open #vibe-check in Slack (this will open a new tab)?');
+        if(confirmed) window.open(slackUrl, '_blank', 'noopener');
+      });
+
+      // Small UX: press Enter on a secret to show mock reveal (for demo)
+      window.revealMock = function(el){
+        // accessibility: announce, animate and increase scoreboard
+        el.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}], {duration:420, easing:'cubic-bezier(.2,.9,.2,1)'});
+        const pts = parseInt(el.querySelector('.points').textContent,10) || 0;
+        const top = document.getElementById('top-score');
+        const current = parseInt(top.textContent,10) || 0;
+        top.textContent = (current + pts);
+        el.style.opacity = '0.92';
+        el.style.outline = '2px solid rgba(110,231,183,0.06)';
+        // small toast (sr)
+        const msg = `${el.querySelector('.title').textContent} — ${pts} points added`;
+        announce(msg);
+      };
+
+      // Screen-reader polite announcer
+      const sr = document.createElement('div');
+      sr.setAttribute('aria-live','polite');
+      sr.setAttribute('aria-atomic','true');
+      sr.style.position='absolute';
+      sr.style.left='-9999px';
+      document.body.appendChild(sr);
+      function announce(message){
+        sr.textContent = message;
+      }
+
+      // Keyboard: make secrets actionable by Enter or Space
+      document.addEventListener('keydown', function(e){
+        if(document.activeElement && document.activeElement.classList.contains('secret')){
+          if(e.key === 'Enter' || e.key === ' '){
+            e.preventDefault();
+            document.activeElement.click();
+          }
+        }
+      });
+
+      // Small hover "glow" effect based on mouse position
+      document.addEventListener('mousemove', function(e){
+        const card = document.querySelector('.card');
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        card.style.boxShadow = `0 20px 60px rgba(2,6,23,${0.45 - Math.abs(0.5-x)*0.3})`;
+      }, {passive:true});
+    })();
+  </script>
+</body>
+</html>
